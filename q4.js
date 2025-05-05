@@ -1,26 +1,20 @@
-
-let bg;
 let cnv;
-let x = 100;
-let y = 300;
+let x = 500;
+let y = 500;
 let speed = 3;
 
-// Add a second background image
-let bg2;
-let currentBg;
+// Background images
+let bgCenter, bgLeft, bgRight, bgTop, bgBottom;
+
+// Track current location in the plus map
+let currentPosition = 'center';
 
 function preload() {
-  bg = loadImage('center_image.png', () => {
-    console.log('Image 1 loaded successfully!');
-  }, () => {
-    console.log('Image 1 failed to load!');
-  });
-
-  bg2 = loadImage('two.png', () => {
-    console.log('Image 2 loaded successfully!');
-  }, () => {
-    console.log('Image 2 failed to load!');
-  });
+  bgCenter = loadImage('center_image.png');
+  bgLeft = loadImage('two.png');
+  bgRight = loadImage('three.png');
+  bgTop = loadImage('four.png');
+  bgBottom = loadImage('five.png');
 }
 
 function centerCanvas() {
@@ -32,53 +26,92 @@ function centerCanvas() {
 function setup() {
   cnv = createCanvas(1000, 1000);
   centerCanvas();
-  currentBg = bg; // Start with the first background
 }
 
 function draw() {
-  if (currentBg) {
-    background(currentBg);
-  } else {
-    background(255, 0, 200); // fallback color
-  }
-
-  // Movement logic
-  if (keyIsDown(87)) { // W
-    y -= speed;
-  }
-  if (keyIsDown(83)) { // S
-    y += speed;
-  }
-  if (keyIsDown(65)) { // A
-    x -= speed;
-  }
-  if (keyIsDown(68)) { // D
-    x += speed;
-  }
-
+  background(200);
+  drawBackground();
+  handleMovement();
   checkBorders();
+
   fill(200);
   circle(x, y, 20);
 }
 
-function windowResized() {
-  centerCanvas();
+function drawBackground() {
+  switch (currentPosition) {
+    case 'center':
+      background(bgCenter);
+      break;
+    case 'left':
+      background(bgLeft);
+      break;
+    case 'right':
+      background(bgRight);
+      break;
+    case 'top':
+      background(bgTop);
+      break;
+    case 'bottom':
+      background(bgBottom);
+      break;
+    default:
+ background(255, 0, 200);
+  }
 }
 
-// ------------------
-// Check if circle hits borders
-function checkBorders() {
-  if (x <= 0 || x >= width) {
-    // Swap the background
-    if (currentBg === bg) {
-      currentBg = bg2;
-    } else {
-      currentBg = bg;
-    }
+function handleMovement() {
+  if (keyIsDown(87)) y -= speed; // W
+  if (keyIsDown(83)) y += speed; // S
+  if (keyIsDown(65)) x -= speed; // A
+  if (keyIsDown(68)) x += speed; // D
+}
 
-    // Optional: reposition the circle slightly inside to avoid rapid flipping
-    if (x < 0) x = 1;
-    if (x >= width-5) x = width - 1;
+function checkBorders() {
+  // Left edge
+  if (x < 0) {
+    if (currentPosition === 'center') {
+      currentPosition = 'left';
+      x = width - 5;
+    } else if (currentPosition === 'right') {
+      currentPosition = 'center';
+      x = width - 5;
+    }
   }
+  // Right edge
+  else if (x > width) {
+    if (currentPosition === 'center') {
+      currentPosition = 'right';
+      x = 5;
+    } else if (currentPosition === 'left') {
+      currentPosition = 'center';
+      x = 5;
+    }
+  }
+
+  // Top edge
+  if (y < 0) {
+    if (currentPosition === 'center') {
+      currentPosition = 'top';
+      y = height - 5;
+    } else if (currentPosition === 'bottom') {
+      currentPosition = 'center';
+      y = height - 5;
+    }
+  }
+  // Bottom edge
+  else if (y > height) {
+    if (currentPosition === 'center') {
+      currentPosition = 'bottom';
+      y = 5;
+    } else if (currentPosition === 'top') {
+      currentPosition = 'center';
+      y = 5;
+    }
+  }
+}
+
+function windowResized() {
+ centerCanvas();
 }
 
