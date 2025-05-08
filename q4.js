@@ -9,6 +9,13 @@ let bgCenter, bgLeft, bgRight, bgTop, bgBottom;
 // Track current location in the plus map
 let currentPosition = 'center';
 
+// Fishing prompt state
+let showFishingPrompt = false;
+let fishingPromptDiv;
+let movementEnabled = true;
+let cancelFishing = false; // New flag for cancel button
+let fishingCooldown = 0;  // Prevents re-showing fishing prompt immediately
+
 function preload() {
   bgCenter = loadImage('center_image.png');
   bgLeft = loadImage('two.png');
@@ -31,8 +38,23 @@ function setup() {
 function draw() {
   background(200);
   drawBackground();
-  handleMovement();
+  if (movementEnabled) {
+    handleMovement();
+  }
   checkBorders();
+  checkFishingZone();
+
+  // Cooldown logic to prevent re-showing fishing prompt immediately
+  if (fishingCooldown > 0) {
+    fishingCooldown--;
+  }
+
+  // Handle cancel flag here
+  if (cancelFishing) {
+    hideFishingButtons();
+    cancelFishing = false;
+    fishingCooldown = 60; // About 1 second cooldown (60 frames)
+  }
 
   fill(200);
   circle(x, y, 20);
@@ -56,7 +78,7 @@ function drawBackground() {
       background(bgBottom);
       break;
     default:
- background(255, 0, 200);
+      background(255, 0, 200);
   }
 }
 
@@ -68,7 +90,6 @@ function handleMovement() {
 }
 
 function checkBorders() {
-  // Left edge
   if (x < 0) {
     if (currentPosition === 'center') {
       currentPosition = 'left';
@@ -77,9 +98,7 @@ function checkBorders() {
       currentPosition = 'center';
       x = width - 5;
     }
-  }
-  // Right edge
-  else if (x > width) {
+  } else if (x > width) {
     if (currentPosition === 'center') {
       currentPosition = 'right';
       x = 5;
@@ -89,7 +108,6 @@ function checkBorders() {
     }
   }
 
-  // Top edge
   if (y < 0) {
     if (currentPosition === 'center') {
       currentPosition = 'top';
@@ -98,9 +116,7 @@ function checkBorders() {
       currentPosition = 'center';
       y = height - 5;
     }
-  }
-  // Bottom edge
-  else if (y > height) {
+  } else if (y > height) {
     if (currentPosition === 'center') {
       currentPosition = 'bottom';
       y = 5;
@@ -111,7 +127,63 @@ function checkBorders() {
   }
 }
 
-function windowResized() {
- centerCanvas();
+function checkFishingZone() {
+  if (fishingCooldown === 0 && currentPosition === 'top' && abs(y - 480) <= 8) {
+    if (!showFishingPrompt) {
+      showFishingPrompt = true;
+      movementEnabled = false;
+      showFishingButtons();
+    }
+  }
 }
 
+function showFishingButtons() {
+  if (!fishingPromptDiv) {
+    fishingPromptDiv = createDiv();
+
+    fishingPromptDiv.html(`
+      <div style="text-align: center;">
+        <h3>Start Fishing?</h3>
+        <button id="castBtn" style="font-size: 20px; padding: 10px 20px;">Cast</button>
+        <button id="cancelBtn" style="font-size: 20px; padding: 10px 20px;">Cancel</button>
+      </div>
+    `);
+
+    fishingPromptDiv.style('position', 'absolute');
+    fishingPromptDiv.style('top', '40%');
+    fishingPromptDiv.style('left', 'calc(50% - 150px)');
+    fishingPromptDiv.style('width', '300px');
+    fishingPromptDiv.style('height', '200px');
+    fishingPromptDiv.style('padding', '20px');
+    fishingPromptDiv.style('background', 'rgba(255, 255, 255, 0.95)');
+    fishingPromptDiv.style('border', '2px solid black');
+    fishingPromptDiv.style('border-radius', '10px');
+    fishingPromptDiv.style('text-align', 'center');
+    fishingPromptDiv.style('z-index', '10');
+    fishingPromptDiv.style('box-shadow', '0 4px 8px rgba(0,0,0,0.2)');
+  } else {
+    fishingPromptDiv.show();
+  }
+
+  select('#castBtn').mousePressed(() => {
+    console.log('You cast your rod!');
+    hideFishingButtons();
+  });
+
+  select('#cancelBtn').mousePressed(() => {
+    console.log('Fishing cancelled.');
+    cancelFishing = true; // Trigger cancel in draw loop
+  });
+}
+
+function hideFishingButtons() {
+  if (fishingPromptDiv) {
+    fishingPromptDiv.hide(); // Visually hide the prompt
+  }
+  showFishingPrompt = false;
+  movementEnabled = true;
+}
+
+function windowResized() {
+  centerCanvas();
+}
