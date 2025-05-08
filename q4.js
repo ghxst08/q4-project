@@ -1,7 +1,7 @@
 let cnv;
 let x = 500;
 let y = 500;
-let speed = 3;
+let speed = 7;
 
 // Background images
 let bgCenter, bgLeft, bgRight, bgTop, bgBottom;
@@ -126,17 +126,23 @@ function checkBorders() {
     }
   }
 }
-
 function checkFishingZone() {
-  if (fishingCooldown === 0 && currentPosition === 'top' && abs(y - 480) <= 8) {
-    if (!showFishingPrompt) {
+  if (fishingCooldown === 0 && !showFishingPrompt) {
+    if (currentPosition === 'top' && abs(y - 430) <= 8) {
       showFishingPrompt = true;
       movementEnabled = false;
-      showFishingButtons();
+      showFishingButtons('top');
+    } else if (currentPosition === 'left' && abs(x - 360) <= 8) {
+      showFishingPrompt = true;
+      movementEnabled = false;
+      showFishingButtons('left');
+    } else if (currentPosition === 'bottom' && abs(y - 550) <= 8) {
+      showFishingPrompt = true;
+      movementEnabled = false;
+      showFishingButtons('bottom');
     }
   }
 }
-
 function showFishingButtons() {
   if (!fishingPromptDiv) {
     fishingPromptDiv = createDiv();
