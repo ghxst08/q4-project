@@ -15,7 +15,8 @@ let sliderPos = 0;
 let direction = 1;
 const barWidth = 600;
 const sliderWidth = 10;
-const speedSlider = 10;
+let speedSlider;  // <-- Now set by difficulty
+
 let greenZoneStart, greenZoneEnd;
 let gameActive = false;
 let castingSuccess = null;
@@ -36,7 +37,6 @@ function centerCanvas() {
   let cy = (windowHeight - height) / 2;
   cnv.position(cx, cy);
 
-  // Position moneyDiv relative to canvas, not browser
   if (moneyDiv) {
     moneyDiv.position(cx + width - 210, cy + 10);
   }
@@ -71,6 +71,9 @@ function setup() {
     fishingPromptDiv.style('box-shadow', '0 4px 8px rgba(0,0,0,0.2)');
     fishingPromptDiv.hide();
   }
+
+  showDifficultyPrompt(); // Show welcome + difficulty selection
+  movementEnabled = false; // Disable movement until a difficulty is selected
 }
 
 function draw() {
@@ -133,9 +136,9 @@ function checkBorders() {
 
 function checkFishingZone() {
   if (fishingCooldown === 0 && !showFishingPrompt && movementEnabled) {
-    if (currentPosition === 'top' && abs(y - 430) <= 8 ||
-        currentPosition === 'left' && abs(x - 360) <= 8 ||
-        currentPosition === 'bottom' && abs(y - 550) <= 8) {
+    if ((currentPosition === 'top' && abs(y - 430) <= 8) ||
+        (currentPosition === 'left' && abs(x - 360) <= 8) ||
+        (currentPosition === 'bottom' && abs(y - 550) <= 8)) {
       showFishingPrompt = true;
       movementEnabled = false;
       showFishingButtons();
@@ -151,7 +154,6 @@ function startFishingGame() {
   gameActive = true;
   sliderPos = 0;
   direction = 1;
-  moveSlider();
 }
 
 function showFishingButtons() {
@@ -180,8 +182,8 @@ function hideFishingButtons() {
 function checkCast() {
   const sliderCenter = sliderPos + sliderWidth / 2;
   castingSuccess = sliderCenter >= greenZoneStart && sliderCenter <= greenZoneEnd;
+  gameActive = false; // Stop slider movement
   showCatchPrompt(castingSuccess);
-  gameActive = false;
 }
 
 function showCatchPrompt(success) {
@@ -196,9 +198,7 @@ function showCatchPrompt(success) {
     else if (rand < 0.90) { message = "You caught a Largemouth Bass!"; imagePath = "largemouth_bass.jpg"; }
     else if (rand < 0.95) { message = "You caught a Pickerel!"; imagePath = "pickerel.jpg"; }
     else { message = "You caught a Common Carp!"; imagePath = "commoncarp.jpg"; }
-  }
-
-  if (success && currentPosition === 'bottom') {
+  } else if (success && currentPosition === 'bottom') {
     const rand = Math.random();
     if (rand < 0.40) { message = "You caught a Peacock Bass!"; imagePath = "peacock_bass.jpg"; }
     else if (rand < 0.60) { message = "You caught a Piranha!"; imagePath = "piranha.jpg"; }
@@ -207,9 +207,7 @@ function showCatchPrompt(success) {
     else if (rand < 0.90) { message = "You caught a Hogfish!"; imagePath = "hogfish.jpg"; }
     else if (rand < 0.95) { message = "You caught an Oscar!"; imagePath = "oscar.jpg"; }
     else { message = "You caught a Willy Mammoth!"; imagePath = "willy.jpg"; }
-  }
-// Add fish probabilities for the bottom position
-  if (success && currentPosition === 'left') {
+  } else if (success && currentPosition === 'left') {
     const rand = Math.random();
     if (rand < 0.60) { message = "You caught a Squid!"; imagePath = "squid.jpg"; }
     else if (rand < 0.65) { message = "You caught a Travis Scott Fish!"; imagePath = "travis.jpg"; }
@@ -217,33 +215,10 @@ function showCatchPrompt(success) {
     else if (rand < 0.82) { message = "You caught a JB-Tirty-Fore!"; imagePath = "jb.jpg"; }
     else if (rand < 0.85) { message = "You caught The Chelillini!"; imagePath = "ben.jpg"; }
     else if (rand < 0.95) { message = "You caught Da SeBass!"; imagePath = "sebastian.jpg"; }
-   else if (rand < 0.96) { message = "You caught The Deacs!"; imagePath = "deacon.jpg"; }
+    else if (rand < 0.96) { message = "You caught The Deacs!"; imagePath = "deacon.jpg"; }
     else { message = "You caught a Pedro!"; imagePath = "pedro.jpg"; }
   }
 
-let fishingPromptDiv;
-
-function setup() {
-  noCanvas();
-  fishingPromptDiv = createDiv('');
-  
-  let message = "You caught a fish!";
-  let imagePath = "https://example.com/fish.png";  // or null
-  let success = true;
-
-  updatePrompt(message, imagePath, success);
-  
-  // Add event listeners after HTML is inserted
-  fishingPromptDiv.elt.addEventListener('click', (e) => {
-    if(e.target.id === 'castAgainBtn') {
-      console.log("Cast Again clicked");
-    } else if (e.target.id === 'cancelBtn') {
-      console.log("Cancel clicked");
-    }
-  });
-}
-
-function updatePrompt(message, imagePath, success) {
   fishingPromptDiv.html(`
     <div style="text-align: center;">
       <h3>${message}</h3>
@@ -254,11 +229,11 @@ function updatePrompt(message, imagePath, success) {
       <button id="cancelBtn" style="font-size: 20px; padding: 10px 20px;">Cancel</button>
     </div>
   `);
-}
+
   fishingPromptDiv.show();
 
   select('#castAgainBtn').mousePressed(() => {
-    hideFishingButtons();
+    fishingPromptDiv.hide();
     startFishingGame();
   });
 
@@ -266,34 +241,93 @@ function updatePrompt(message, imagePath, success) {
 }
 
 function cancelFishing() {
+  fishingPromptDiv.hide();
   movementEnabled = true;
   showFishingPrompt = false;
-  fishingCooldown = 60;
-  castingSuccess = null;
+  fishingCooldown = 120; // Cooldown to prevent immediate retriggering
   gameActive = false;
-  if (fishingPromptDiv) fishingPromptDiv.hide();
-}
-
-function moveSlider() {
-  sliderPos += direction * speedSlider;
-  if (sliderPos <= 0 || sliderPos >= barWidth - sliderWidth) direction *= -1;
+  castingSuccess = null;
 }
 
 function drawSlider() {
   fill(0);
-  rect(200, height - 100, barWidth, 10);
+  rect(200, height - 100, barWidth, 10); // black bar base
   fill(0, 255, 0);
-  rect(200 + greenZoneStart, height - 100, greenZoneEnd - greenZoneStart, 10);
+  rect(200 + greenZoneStart, height - 100, greenZoneEnd - greenZoneStart, 10); // green success zone
   fill(255, 0, 0);
-  rect(200 + sliderPos, height - 100, sliderWidth, 20);
+  rect(200 + sliderPos, height - 100, sliderWidth, 20); // red slider rectangle, taller than the bar
+}
+
+function moveSlider() {
+  sliderPos += direction * speedSlider;
+  if (sliderPos <= 0) {
+    sliderPos = 0;
+    direction = 1;
+  } else if (sliderPos >= barWidth - sliderWidth) {
+    sliderPos = barWidth - sliderWidth;
+    direction = -1;
+  }
+}
+
+function keyPressed() {
+  if (gameActive && (key === ' ' || key === 'Enter')) {
+    checkCast();
+  }
+}
+
+// Difficulty prompt with speedSlider setting
+function showDifficultyPrompt() {
+  let difficultyDiv = createDiv(`
+    <div style="text-align: center;">
+      <h2>Welcome to Cody and Jason's Fishing Game!</h2>
+      <h3>Choose your difficulty:</h3>
+      <button id="easyBtn" style="font-size: 20px; padding: 10px 20px; margin: 10px;">Easy</button>
+      <button id="mediumBtn" style="font-size: 20px; padding: 10px 20px; margin: 10px;">Medium</button>
+      <button id="hardBtn" style="font-size: 20px; padding: 10px 20px; margin: 10px;">Hard</button>
+    </div>
+  `);
+
+  difficultyDiv.id('difficultyPrompt');
+  difficultyDiv.style('position', 'absolute');
+  difficultyDiv.style('top', '50%');
+  difficultyDiv.style('left', '50%');
+  difficultyDiv.style('transform', 'translate(-50%, -50%)');
+  difficultyDiv.style('padding', '30px');
+  difficultyDiv.style('background', 'rgba(255,255,255,0.95)');
+  difficultyDiv.style('border', '2px solid black');
+  difficultyDiv.style('border-radius', '15px');
+  difficultyDiv.style('box-shadow', '0 4px 10px rgba(0,0,0,0.3)');
+  difficultyDiv.style('z-index', '50');
+
+ let style = createElement('style', `
+    #easyBtn:hover {
+      box-shadow: 0 0 15px 5px #00FF00; /* bright green glow */
+    }
+    #mediumBtn:hover {
+      box-shadow: 0 0 15px 5px #FFFF00; /* yellow glow */
+    }
+    #hardBtn:hover {
+      box-shadow: 0 0 15px 5px #FF0000; /* red glow */
+    }
+  `);
+
+  select('#easyBtn').mousePressed(() => {
+    speedSlider = 15;
+    difficultyDiv.remove();
+    movementEnabled = true;
+  });
+  select('#mediumBtn').mousePressed(() => {
+    speedSlider = 20;
+    difficultyDiv.remove();
+    movementEnabled = true;
+  });
+  select('#hardBtn').mousePressed(() => {
+    speedSlider = 25;
+    difficultyDiv.remove();
+    movementEnabled = true;
+  });
 }
 
 function windowResized() {
   centerCanvas();
-}
-
-function keyPressed() {
-  if (keyCode === 32 && gameActive) {
-    checkCast();
-  }
 }
