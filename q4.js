@@ -1,7 +1,7 @@
 let cnv;
 let x = 500;
 let y = 500;
-let speed = 7;
+let speed = 13;
 
 let bgCenter, bgLeft, bgRight, bgTop, bgBottom;
 let currentPosition = 'center';
@@ -189,55 +189,63 @@ function checkCast() {
 function showCatchPrompt(success) {
   let message = success ? "You caught a fish!" : "You failed!";
   let imagePath = '';
+  let bgcolor = "#ffffff";
+  let glowColor = "none";
 
   if (success && currentPosition === 'top') {
     const rand = Math.random();
-    if (rand < 0.40) { message = "You caught a Bluegill!"; imagePath = "bluegill.jpg"; }
-    else if (rand < 0.60) { message = "You caught a Yellow Perch!"; imagePath = "yellow_perch.jpg"; }
-    else if (rand < 0.80) { message = "You caught a White Perch!"; imagePath = "white_perch.jpg"; }
-    else if (rand < 0.90) { message = "You caught a Largemouth Bass!"; imagePath = "largemouth_bass.jpg"; }
-    else if (rand < 0.95) { message = "You caught a Pickerel!"; imagePath = "pickerel.jpg"; }
-    else { message = "You caught a Common Carp!"; imagePath = "commoncarp.jpg"; }
+    if (rand < 0.40) { message = "You caught a Bluegill!"; imagePath = "bluegill.jpg"; bgcolor = "#808080"; money+=10; }
+    else if (rand < 0.60) { message = "You caught a Yellow Perch!"; imagePath = "yellow_perch.jpg"; bgcolor = "#0096c7"; }
+    else if (rand < 0.80) { message = "You caught a White Perch!"; imagePath = "white_perch.jpg"; bgcolor = "#0096c7"; }
+    else if (rand < 0.90) { message = "You caught a Largemouth Bass!"; imagePath = "largemouth_bass.jpg"; bgcolor = "#0096c7"; }
+    else if (rand < 0.95) { message = "You caught a Pickerel!"; imagePath = "pickerel.jpg"; bgcolor = "#ffd700"; glowColor = "0 -10px 10px 55px rgba(255, 140, 0, 0.5)";}
+    else { message = "You caught a Common Carp!"; imagePath = "commoncarp.jpg"; bgcolor = "#ff00ff"; glowColor = "0 -10px 10px 55px rgba(255, 0, 255, 0.5)"; }
   } else if (success && currentPosition === 'bottom') {
     const rand = Math.random();
-    if (rand < 0.40) { message = "You caught a Peacock Bass!"; imagePath = "peacock_bass.jpg"; }
-    else if (rand < 0.60) { message = "You caught a Piranha!"; imagePath = "piranha.jpg"; }
-    else if (rand < 0.72) { message = "You caught a Tautog!"; imagePath = "tautog.jpg"; }
-    else if (rand < 0.82) { message = "You caught a Tilefish!"; imagePath = "tilefish.jpg"; }
-    else if (rand < 0.90) { message = "You caught a Hogfish!"; imagePath = "hogfish.jpg"; }
-    else if (rand < 0.95) { message = "You caught an Oscar!"; imagePath = "oscar.jpg"; }
-    else { message = "You caught a Willy Mammoth!"; imagePath = "willy.jpg"; }
+    if (rand < 0.40) { message = "You caught a Peacock Bass!"; imagePath = "peacock_bass.jpg"; bgcolor = "#808080"; }
+    else if (rand < 0.60) { message = "You caught a Piranha!"; imagePath = "piranha.jpg"; bgcolor = "#808080"; }
+    else if (rand < 0.72) { message = "You caught a Tautog!"; imagePath = "tautog.jpg"; bgcolor = "#0096c7"; }
+    else if (rand < 0.82) { message = "You caught a Tilefish!"; imagePath = "tilefish.jpg"; bgcolor = "#0096c7"; }
+    else if (rand < 0.90) { message = "You caught a Hogfish!"; imagePath = "hogfish.jpg"; bgcolor = "#ff00ff"; }
+    else if (rand < 0.95) { message = "You caught an Oscar!"; imagePath = "oscar.jpg"; bgcolor = "#ff00ff"; }
+    else { message = "You caught a Willy Mammoth!"; imagePath = "willy.jpg"; bgcolor = "#ff0007"; glowColor = "0 -10px 10px 55px rgba(255, 0, 7, 0.5)";}
   } else if (success && currentPosition === 'left') {
     const rand = Math.random();
-    if (rand < 0.60) { message = "You caught a Squid!"; imagePath = "squid.jpg"; }
-    else if (rand < 0.65) { message = "You caught a Travis Scott Fish!"; imagePath = "travis.jpg"; }
-    else if (rand < 0.75) { message = "You caught The Dawgon!"; imagePath = "braiden.jpg"; }
-    else if (rand < 0.82) { message = "You caught a JB-Tirty-Fore!"; imagePath = "jb.jpg"; }
-    else if (rand < 0.85) { message = "You caught The Chelillini!"; imagePath = "ben.jpg"; }
-    else if (rand < 0.95) { message = "You caught Da SeBass!"; imagePath = "sebastian.jpg"; }
-    else if (rand < 0.96) { message = "You caught The Deacs!"; imagePath = "deacon.jpg"; }
-    else { message = "You caught a Pedro!"; imagePath = "pedro.jpg"; }
+    if (rand < 0.60) { message = "You caught a Squid!"; imagePath = "squid.jpg"; bgcolor = "#808080"; }
+    else if (rand < 0.65) { message = "You caught a Travis Scott Fish!"; imagePath = "travis.jpg"; bgcolor = "#ff00ff"; glowColor = "0 -10px 10px 55px rgba(255, 0, 255, 0.5)";}
+    else if (rand < 0.75) { message = "You caught The Dawgon!"; imagePath = "braiden.jpg"; bgcolor = "#0000ff"; }
+    else if (rand < 0.82) { message = "You caught a JB-Tirty-Fore!"; imagePath = "jb.jpg"; bgcolor = "#0000ff"; }
+    else if (rand < 0.85) { message = "You caught The Chelillini!"; imagePath = "ben.jpg"; bgcolor = "#ffd700"; glowColor = "0 -10px 10px 55px rgba(255, 220, 0, 0.5)";}
+    else if (rand < 0.95) { message = "You caught Da SeBass!"; imagePath = "sebastian.jpg"; bgcolor = "#0000ff"; }
+    else if (rand < 0.96) { message = "You caught The Deacs!"; imagePath = "deacon.jpg"; bgcolor = "#ff0007"; glowColor = "0 -10px 10px 55px rgba(255, 0, 7, 0.5)";}
+    else { message = "You caught a Pedro!"; imagePath = "pedro.jpg"; bgcolor = "#ff00ff"; glowColor = "0 -10px 10px 55px rgba(255, 0, 255, 0.5)";}
   }
 
+  // Construct the prompt HTML
   fishingPromptDiv.html(`
-    <div style="text-align: center;">
+    <div id="fishdiv" style="text-align: center; background-color: ${bgcolor}; box-shadow: ${glowColor}; padding: 20px; border-radius: 12px;">
       <h3>${message}</h3>
       ${imagePath ? `<img src="${imagePath}" style="max-width: 100%; max-height: 180px; display: block; margin: 10px auto;">` : ''}
-      <button id="castAgainBtn" style="font-size: 20px; padding: 10px 20px;">
-        ${success ? 'Cast Again' : 'Try Again'}
-      </button>
+      <button id="castAgainBtn" style="font-size: 20px; padding: 10px 20px;">${success ? 'Cast Again' : 'Try Again'}</button>
       <button id="cancelBtn" style="font-size: 20px; padding: 10px 20px;">Cancel</button>
     </div>
   `);
 
+  // Apply styles using p5.js
+  fishingPromptDiv.style("background-color", bgcolor);
+  fishingPromptDiv.style("box-shadow", glowColor);
+  
   fishingPromptDiv.show();
 
-  select('#castAgainBtn').mousePressed(() => {
+document.getElementById("moneyDiv").innerHTML= money  
+select('#castAgainBtn').mousePressed(() => {
     fishingPromptDiv.hide();
     startFishingGame();
   });
 
-  select('#cancelBtn').mousePressed(cancelFishing);
+  select('#cancelBtn').mousePressed(() => {
+    fishingPromptDiv.hide();
+  });
 }
 
 function cancelFishing() {
@@ -330,4 +338,25 @@ function showDifficultyPrompt() {
 
 function windowResized() {
   centerCanvas();
+}
+function keyPressed() {
+  if (gameActive && (key === ' ' || key === 'Enter')) {
+    checkCast();
+  } else if (
+    !gameActive &&
+    (key === ' ' || key === 'Enter') &&
+    fishingPromptDiv &&
+    fishingPromptDiv.elt.innerText.includes("Cast Again")
+  ) {
+    fishingPromptDiv.hide();
+    startFishingGame();
+  } else if (
+    !gameActive &&
+    (key === ' ' || key === 'Enter') &&
+    fishingPromptDiv &&
+    fishingPromptDiv.elt.innerText.includes("Try Again")
+  ) {
+    fishingPromptDiv.hide();
+    startFishingGame();
+  }
 }
